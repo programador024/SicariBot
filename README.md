@@ -7,11 +7,10 @@
 
 <p align="center">
 
-<center>
 <img src="imagenes/sicaribot_menu.jpg" alt="Bot Telegram" height="200px" width="250px"/>
 
 <h1 align="center">SICARIOBOT🤖</h1>
-</center>
+
   &#xa0;
   
 </p>
