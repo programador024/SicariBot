@@ -1,0 +1,1 @@
+TELEGRAM_TOKEN = "7946036126:AAFoZJrb_cTDt7ckGipVhzfPFlkm-xt1yAs"
