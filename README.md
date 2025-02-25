@@ -68,6 +68,7 @@ $ pip install pytube
 $ pip install pydub
 $ pip install yt-dlp
 $ pip install pillow
+$ pip install pytz
 # Para desactivar el entorno virtual
 $ .venv\Scripts\deactivate
 # Correr el proyecto

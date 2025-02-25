@@ -7,6 +7,8 @@ from datetime import datetime
 from datetime import datetime
 #Crear la base de datos para los registro de los usuarios
 import sqlite3
+#Para zona horarica de cualquier pais
+import pytz
 #Para la descarga de imagen, musica, texto, sticker
 import re
 import logging
@@ -55,6 +57,43 @@ user_data = {}
 # Diccionario para rastrear el estado del usuario para el sticker
 esperando_imagen = {}
 
+#Funcion para obtener la hora local del usuario
+def obtener_hora_local(pais):
+    #Diccionario de paises con sus zonas horarias
+    zonas_horarias = {
+        "Argentina": "America/Argentina/Buenos_Aires",
+        "México": "America/Mexico_City",
+        "Colombia": "America/Bogota",
+        "España": "Europe/Madrid",
+        "Chile": "America/Santiago",
+        "Perú": "America/Lima",
+        "Venezuela": "America/Caracas",
+        "Alemania": "Europe/Berlín",
+        "Bolivia": "America/Bolivia/La_Paz",
+        "Brasil": "America/Brasilia",
+        "Canadá": "America/Ottawa",
+        "Cuba": "America/La_Habana",
+        "Dominica": "America/Roseau",
+        "Ecuador": "America/Quito",
+        "El Salvador": "America/San_Salvador",
+        "España": "Europa/Madrid",
+        "Estados Unidos": "America/Whashington_D.C.",
+        "Guatemala": "America/Ciudad_de_Guatemala",
+        "Honduras": "Tegucigalpa",
+        "Japón": "Asia/Tokio",
+        "Nicaragua": "America/Managua",
+        "Panamá": "America/Ciudad_de_Panamá",
+        "Paraguay": "America/Asunción",
+        "República Dominicana": "America/Santo_Domingo",
+        "Rusia": "Europe/Moscú",
+        "Paraguay": "America/Montevideo",     
+    }
+
+    zona_horaria = zonas_horarias.get(pais, "UTC") #Si no encuentra el pais, usa UTC
+    zona = pytz.timezone(zona_horaria)
+    ahora = datetime.now(zona)
+    return ahora.strftime("%d/%m/%Y 🕔  %H:%M:%S") 
+
 # Configurar los comandos disponibles en el menú
 bot.set_my_commands([
     BotCommand("start", "Inicia el bot"),
@@ -86,12 +125,19 @@ def cmd_start(message):
 # Responder al comando /menu
 @bot.message_handler(commands=["menu"])
 def cmd_menu(message):
-    now = datetime.now()
-    fecha = now.strftime("%d/%m/%Y")
-    hora = now.strftime("%H:%M:%S")
+    chat_id = message.chat.id
+
+    #Consultar el pais del usuario desde la base de datos
+    with obtener_conexion() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT pais FROM usuarios WHERE chat_id = ?", (chat_id,))
+        resultado = cursor.fetchone()
+    pais = resultado[0] if resultado else "UTC" #Si no hay pais se usa UTC
+    fecha_hora = obtener_hora_local(pais)
+
     menu_text = f"""
 <b>🤖 MENÚ SICARIOBOT 🤖</b>
-📅{fecha}🕔{hora}    
+📅 {fecha_hora}    
 Comandos disponibles:
 /start - Inicia el bot
 /menu - Lista de comandos
@@ -514,4 +560,3 @@ if __name__ == '__main__':
         print(f'Error inesperado: {e}')
     finally:
         print('SicarioBot finalizado..')
-    
