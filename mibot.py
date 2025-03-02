@@ -1,7 +1,11 @@
-from config import *  #Aquí importamos el token
+#Aqui importamos el token
+from config import *
 import os
-import telebot  #Para trabajar con la API de Telegram
-from telebot.types import BotCommand, InlineKeyboardMarkup, InlineKeyboardButton  #Importación optimizada y botones inline
+#Para trabajar con la AI de Telegram
+import telebot
+telebot.logger.setLevel(__import__('logging').DEBUG)
+from telebot.types import (BotCommand, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton)
+#Importación optimizada y botones inline
 from datetime import datetime
 #Importar datetime para fecha/hora
 from datetime import datetime
@@ -28,8 +32,7 @@ SEARCH_ENGINE_ID = "a50b16cd1fe4b4a45" #ID de Custom Search
 SEARCH_URL = "https://www.googleapis.com/customsearch/v1"
 
 # Instanciar el bot en Telegram
-bot = telebot.TeleBot(TELEGRAM_TOKEN)
-
+bot = telebot.TeleBot(TELEGRAM_TOKEN) 
 # Conectar con la base de datos SQLite(se creara si no existe)
 conn = sqlite3.connect("usuarios.db", check_same_thread=False)
 cursor = conn.cursor()
@@ -112,17 +115,23 @@ bot.set_my_commands([
     BotCommand("telegrampremium", "Telegram con funciones de premium desbloqueadas, modificado por su servidor"),
     BotCommand("imagen", "Comando /imagen + Nombre"),
     BotCommand("musica", "Comando /musica + Nombre"),
+    BotCommand("video", "Comando /video + Nombre"),
     BotCommand("aibuscar", "Comando /aibuscar + Texto"),
     BotCommand("aisticker", "Crear sticker"),
 ])
 
-# Responder al comando /start
+#Agregar botones de reply keyboard
+button1 = KeyboardButton("Hello! 👋")
+button2 = KeyboardButton("YouTube 🎥")
+keyboard1 = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False).row(button1, button2)
+
+#Responder al comando /start
 @bot.message_handler(commands=["start"])
 def cmd_start(message):
     username = message.from_user.username or "usuario"
-    bot.reply_to(message, f"Hola @{username}, soy SicarioBot, tu asistente virtual. ¿En qué te puedo ayudar? Ejecuta /menu para ver los comandos.")
+    bot.reply_to(message, f"Hola @{username}, soy SicarioBot, tu asistente virtual. ¿En qué te puedo ayudar?\n\n Ejecuta /menu para ver los comandos.", reply_markup=keyboard1)
 
-# Responder al comando /menu
+#Responder al comando /menu
 @bot.message_handler(commands=["menu"])
 def cmd_menu(message):
     chat_id = message.chat.id
@@ -159,6 +168,7 @@ Comandos disponibles:
 🎬Descargar Multimedia e IA🤖:
 /imagen + Nombre
 /musica + Nombre
+/video + Nombre
 /aibuscar + Texto
 /aisticker - Crear sticker
     """
@@ -166,29 +176,37 @@ Comandos disponibles:
     keyboard = InlineKeyboardMarkup()
     boton_canal = InlineKeyboardButton("📢 VER CANAL", url="https://t.me/mds_inmunes")
     keyboard.add(boton_canal)
-    
     with open("imagenes/sicaribot_menu2.jpg", "rb") as photo:
         bot.send_photo(message.chat.id, photo, caption=menu_text, parse_mode='HTML', reply_markup=keyboard)
+        bot.send_message("Selecciona una obción:", reply_markup=keyboard1)
 
-# Responder al comando /creador
+# Manejar respuestas a los botones del teclado
+@bot.message_handler(func=lambda message: message.text in ["Hello! 👋", "YouTube 🎥"])
+def cmd_kb_answer(message):
+    if message.text == "Hello! 👋":
+        bot.reply_to(message, "Hi! How are you? 😊")
+    elif message.text == "YouTube 🎥":
+        bot.reply_to(message, "Aquí está mi canal de YouTube: https://www.youtube.com/@nms_sicario023")
+
+#Responder al comando /creador
 @bot.message_handler(commands=["creador"])
 def cmd_creador(message):
-    bot.reply_to(message, "Fui creado por SicarioOfc, puedes contactarlo en sus redes en el apartado de 'Redes Sociales📱' que se muestra en /menu")
+    bot.reply_to(message, f"Fui creado por SicarioOfc, puedes contactarlo en sus redes en el apartado de Redes Sociales📱 que se muestra en /menu", reply_markup=keyboard1)
 
 # Responder al comando /canaltelegram
 @bot.message_handler(commands=["canaltelegram"])
 def cmd_canaltelegram(message):
-    bot.reply_to(message, "Mi Telegram es: https://t.me/mds_inmunes")
+    bot.reply_to(message, "Mi Telegram es: https://t.me/mds_inmunes", reply_markup=keyboard1)
 
 # Responder al comando /canalyoutube
 @bot.message_handler(commands=["canalyoutube"])
 def cmd_canalyoutube(message):
-    bot.reply_to(message, "Mi YouTube es: https://www.youtube.com/@nms_sicario023")
-
+    bot.reply_to(message, "Mi YouTube es: https://www.youtube.com/@nms_sicario023", reply_markup=keyboard1)
+ 
 # Responder al comando /paginaweb
 @bot.message_handler(commands=["paginaweb"])
 def cmd_paginaweb(message):
-    bot.reply_to(message, "Mi Página Web es: https://teamzetasprivate.kesug.com/")      
+    bot.reply_to(message, "Mi Página Web es: https://teamzetasprivate.kesug.com/", reply_markup=keyboard1)      
          
 #Obtener la conexión a la base de datos         
 def obtener_conexion():
@@ -333,38 +351,38 @@ def acceso_restringido(func):
         if usuario_registrado(message.chat.id):
             return func(message)
         else:
-            bot.send_message(message.chat.id, "⚠️ Debes registrarte con /registro para usar este comando.")
+            bot.send_message(message.chat.id, "⚠️ Debes registrarte con /registro para usar este comando.", reply_markup=keyboard1)
     return wrapper
 
 @bot.message_handler(commands=["mtmanager"])
 @acceso_restringido
 def cmd_mtmanager(message):
     with open("resources/MT Manager_2.18.0.apk", "rb") as mtmanager:
-        bot.send_document(message.chat.id, mtmanager)
+        bot.send_document(message.chat.id, mtmanager, reply_markup=keyboard1)
 
 @bot.message_handler(commands=["mtmanagerbeta"])
 @acceso_restringido
 def cmd_mtmanagerbeta(message):
     with open("resources/MT Manager_2.14.5-clone.apk", "rb") as mtmanagerbeta:
-        bot.send_document(message.chat.id, mtmanagerbeta)
+        bot.send_document(message.chat.id, mtmanagerbeta, reply_markup=keyboard1)
 
 @bot.message_handler(commands=["apkeditorpro"])
 @acceso_restringido
 def cmd_apkeditorpro(message):
     with open("resources/APK Editor Pro_1.10.0.apk", "rb") as apkeditorpro:
-        bot.send_document(message.chat.id, apkeditorpro)
+        bot.send_document(message.chat.id, apkeditorpro, reply_markup=keyboard1)
 
 @bot.message_handler(commands=["apktoolm"])
 @acceso_restringido
 def cmd_apktoolm(message):
     with open("resources/Apktool M_2.4.0-250121.apk", "rb") as apktoolm:
-        bot.send_document(message.chat.id, apktoolm)
+        bot.send_document(message.chat.id, apktoolm, reply_markup=keyboard1)
 
     
 @bot.message_handler(commands=["telegrampremium"])
 @acceso_restringido
 def cmd_telegrampremium(message):
-    bot.reply_to(message, "Telegram Premium: https://www.mediafire.com/file/xtc46lw5lci34k9/%25F0%259F%2594%25A5%25E2%2583%259F%25E2%2598%25A0%25EF%25B8%258ETelegram_Sicari%25F0%259F%258E%25ADV1_9.6.6.rar/file")    
+    bot.reply_to(message, "Telegram PremiumV2: https://www.mediafire.com/file/nmqqa8ztye660i9/%25F0%259F%2594%25A5%25E2%2583%259F%25E2%2598%25A0%25EF%25B8%258ETelegram_Sicari%25F0%259F%258E%25ADV2.apk/file", reply_markup=keyboard1)    
     
 # Función para buscar imágenes en Google
 def buscar_imagen(query):
@@ -390,7 +408,7 @@ def buscar_video_youtube(query):
     try:
         service = build("customsearch", "v1", developerKey=API_KEY)
         res = service.cse().list(q=f"{query} site:youtube.com", cx=SEARCH_ENGINE_ID).execute()
-        if "items" in res:
+        if "items" in res and len(res["items"]) > 0:
             return res["items"][0]["link"]
     except Exception as e:
         print(f"Error en la búsqueda de YouTube: {e}")
@@ -437,13 +455,63 @@ def cmd_musica(message):
             os.remove(audio_filename)  # Eliminar el archivo después de enviarlo
 
         else:
-            bot.send_message(chat_id, "❌ Error: No se pudo encontrar el archivo descargado.")
+            bot.send_message(chat_id, "❌ Error: No se pudo encontrar el archivo descargado")
 
     except Exception as e:
         bot.send_message(chat_id, f"❌ Ocurrió un error: {e}")
         
 
-# Función para buscar en Google con Custom Search API
+# Comando /video para descargar un video
+import yt_dlp
+@bot.message_handler(commands=["video"])
+@acceso_restringido
+def cmd_video(message):
+    chat_id = message.chat.id
+    args = message.text.split(maxsplit=1)
+
+    if len(args) < 2:
+        bot.send_message(chat_id, "Uso: /video nombre_del_video_o_URL")
+        return
+
+    video_name = args[1]
+    bot.send_message(chat_id, f"🔍 Buscando el video: {video_name}...")
+
+    # Buscar el video en YouTube usando Google Custom Search
+    video_url = buscar_youtube(video_name)
+
+    if not video_url:
+        bot.send_message(chat_id, "❌ No se encontró el video.")
+        return
+
+    bot.send_message(chat_id, "🎥 Descargando video, espera un momento...")
+
+    # Configuración de descarga con yt-dlp
+    ydl_opts = {
+        "format": "bestvideo+bestaudio/best",
+        "outtmpl": "%(title)s.%(ext)s",  # Guarda el video con el nombre de la búsqueda
+        "merge_output_format": "mp4", 
+        "quiet": True,
+    }
+
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(video_url, download=True)
+            video_title = info.get("title", video_name)
+            video_file = f"{video_title}.mp4"
+
+        # Verificar si el archivo existe antes de enviarlo
+        if os.path.exists(video_file):
+            with open(video_file, "rb") as video:
+                bot.send_video(chat_id, video, caption=f"🎥 {video_title}")
+            os.remove(video_file)  # Borrar después de enviarlo
+        else:
+            bot.send_message(chat_id, "❌ Error: No se encontró el archivo descargado.")
+
+    except Exception as e:
+        bot.send_message(chat_id, f"❌ Ocurrió un error: {e}")
+
+
+# Función para buscar en Google con Custom Search A
 def buscar_en_google(query):
     try:
         params = {
@@ -512,7 +580,7 @@ def recibir_imagen(message):
             bot.send_sticker(chat_id, open(sticker_path, "rb"))
             os.remove(sticker_path)  # Eliminar archivo después de enviarlo
         else:
-            bot.send_message(chat_id, "❌ Ocurrió un error al crear el sticker.")
+            bot.send_message(chat_id, "❌ Ocurrió un error al crear el sticker")
 
         os.remove(image_path)  # Eliminar la imagen original
     else:
