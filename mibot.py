@@ -207,8 +207,8 @@ def cmd_kb_answer(message):
         botones = [KeyboardButton(str(i)) for i in range(1, 11)]  # Botones del 1 al 10
         markup.row(*botones[:5])  # Primera fila con 5 números
         markup.row(*botones[5:])  # Segunda fila con los otros 5
-        bot.reply_to(message, "Por favor, califica el bot del 1 al 10:", reply_markup=markup)
-
+        markup.row(KeyboardButton("❌ Cancelar"))  # Botón de cancelar en una fila aparte
+        bot.reply_to(message, "Por favor, califica el bot del 1 al 10 o presiona '❌ Cancelar' ", reply_markup=markup)
     elif message.text == "📊 Ver Calificaciones":
         with sqlite3.connect("usuarios.db") as conn:
             cursor = conn.cursor()
@@ -229,14 +229,32 @@ def guardar_calificacion(message):
         conn.commit()
     # Eliminar el teclado de calificación
     bot.reply_to(message, f"¡Gracias por calificar con {calificacion}/10! ⭐,", reply_markup=ReplyKeyboardRemove())
+    # Volver a mostrar el teclado principal
+    mostrar_menu_principal(chat_id)
 
-   # Volver a mostrar el teclado principal
-    markup = ReplyKeyboardMarkup(resize_keyboard=True)
-    botones = ["🙍‍  Cuenta", "⚙️  Ayuda", "🛠️  Soporte", "📝  Calificar", "📊 Ver Calificaciones"]
-    markup.row(*botones[:2])  # Primera fila
-    markup.row(*botones[2:])  # Segunda fila
+# Manejar la cancelación de la calificación
+@bot.message_handler(func=lambda message: message.text == "❌ Cancelar")
+def cancelar_calificacion(message):
+    chat_id = message.chat.id
 
-    bot.send_message(chat_id, "Menú principal:", reply_markup=markup)
+    # Eliminar el teclado de calificación
+    bot.reply_to(message, "Calificación cancelada. Volviendo al menú principal...", reply_markup=ReplyKeyboardRemove())
+
+    # Volver a mostrar el teclado principal
+    mostrar_menu_principal(chat_id)
+
+# Función para mostrar el teclado principal
+def mostrar_menu_principal(chat_id):
+    button1 = KeyboardButton("🙍‍  Cuenta")
+    button2 = KeyboardButton("⚙️  Ayuda")
+    button3 = KeyboardButton("🛠️  Soporte")
+    button4 = KeyboardButton("📝  Calificar")
+    button5 = KeyboardButton("📊 Ver Calificaciones")
+    keyboard1 = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
+    keyboard1.row(button1, button2)
+    keyboard1.row(button3, button4)
+    keyboard1.row(button5)  
+    bot.send_message(chat_id, "Menú principal:", reply_markup=keyboard1)
 
 #Responder al comando /creador
 @bot.message_handler(commands=["creador"])
