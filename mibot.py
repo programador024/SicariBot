@@ -49,6 +49,13 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS usuarios (
     foto TEXT
 )''')
 
+# Crear la tabla de calificaciones si no existe
+cursor.execute(''' CREATE TABLE IF NOT EXISTS calificaciones (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    chat_id INTEGER UNIQUE,
+    calificacion INTEGER
+ )''')
+
 # Guardar cambios y cerrar conexión
 conn.commit()
 conn.close()
@@ -121,9 +128,15 @@ bot.set_my_commands([
 ])
 
 #Agregar botones de reply keyboard
-button1 = KeyboardButton("Hello! 👋")
-button2 = KeyboardButton("YouTube 🎥")
-keyboard1 = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False).row(button1, button2)
+button1 = KeyboardButton("🙍‍  Cuenta")
+button2 = KeyboardButton("⚙️  Ayuda")
+button3 = KeyboardButton("🛠️  Soporte")
+button4 = KeyboardButton("📝  Calificar")
+button5 = KeyboardButton("📊 Ver Calificaciones")
+keyboard1 = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
+keyboard1.row(button1, button2)
+keyboard1.row(button3, button4)
+keyboard1.row(button5)
 
 #Responder al comando /start
 @bot.message_handler(commands=["start"])
@@ -181,12 +194,49 @@ Comandos disponibles:
         bot.send_message("Selecciona una obción:", reply_markup=keyboard1)
 
 # Manejar respuestas a los botones del teclado
-@bot.message_handler(func=lambda message: message.text in ["Hello! 👋", "YouTube 🎥"])
+@bot.message_handler(func=lambda message: message.text in ["🙍‍  Cuenta", "⚙️  Ayuda", "🛠️  Soporte", "📝  Calificar", "📊 Ver Calificaciones"])
 def cmd_kb_answer(message):
-    if message.text == "Hello! 👋":
-        bot.reply_to(message, "Hi! How are you? 😊")
-    elif message.text == "YouTube 🎥":
-        bot.reply_to(message, "Aquí está mi canal de YouTube: https://www.youtube.com/@nms_sicario023")
+    if message.text == "🙍‍  Cuenta":
+        bot.reply_to(message, "Digita los siguientes comandos, para lo que desees hacer en tu cuenta. \n\n/registro - Registrarte\n\n/perfil - Ver tu perfil\n\n/deleteusuario - Eliminar perfil")
+    elif message.text == "⚙️  Ayuda":
+        bot.reply_to(message, "Para el uso del bot, digita los siguientes comandos. \n\n/start - Iniciar el bot\n\n/menu - Ver el menu completo\n\n/creador - Información del creador")
+    elif message.text == "🛠️  Soporte":
+        bot.reply_to(message, "Puedes contactar a soporte del bot, para cualquier cosa o duda.\n\nEnvia un mensaje a soporte al siguiente correo: teamzetasprivatev1@gmail.com")
+    elif message.text == "📝  Calificar":
+        markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+        botones = [KeyboardButton(str(i)) for i in range(1, 11)]  # Botones del 1 al 10
+        markup.row(*botones[:5])  # Primera fila con 5 números
+        markup.row(*botones[5:])  # Segunda fila con los otros 5
+        bot.reply_to(message, "Por favor, califica el bot del 1 al 10:", reply_markup=markup)
+
+    elif message.text == "📊 Ver Calificaciones":
+        with sqlite3.connect("usuarios.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT AVG(calificacion) FROM calificaciones")  # Promedio de calificaciones
+            resultado = cursor.fetchone()
+            promedio = resultado[0] if resultado[0] else 0  # Si no hay calificaciones, muestra 0
+        bot.reply_to(message, f"📊 El bot tiene una calificación promedio de: {promedio:.1f}/10 ⭐")
+
+# Guardar la calificación
+@bot.message_handler(func=lambda message: message.text.isdigit() and 1 <= int(message.text) <= 10)
+def guardar_calificacion(message):
+    chat_id = message.chat.id
+    calificacion = int(message.text)
+    with sqlite3.connect("usuarios.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("CREATE TABLE IF NOT EXISTS calificaciones (chat_id INTEGER PRIMARY KEY, calificacion INTEGER)")
+        cursor.execute("INSERT OR REPLACE INTO calificaciones (chat_id, calificacion) VALUES (?, ?)", (chat_id, calificacion))
+        conn.commit()
+    # Eliminar el teclado de calificación
+    bot.reply_to(message, f"¡Gracias por calificar con {calificacion}/10! ⭐,", reply_markup=ReplyKeyboardRemove())
+
+   # Volver a mostrar el teclado principal
+    markup = ReplyKeyboardMarkup(resize_keyboard=True)
+    botones = ["🙍‍  Cuenta", "⚙️  Ayuda", "🛠️  Soporte", "📝  Calificar", "📊 Ver Calificaciones"]
+    markup.row(*botones[:2])  # Primera fila
+    markup.row(*botones[2:])  # Segunda fila
+
+    bot.send_message(chat_id, "Menú principal:", reply_markup=markup)
 
 #Responder al comando /creador
 @bot.message_handler(commands=["creador"])
@@ -201,7 +251,7 @@ def cmd_canaltelegram(message):
 # Responder al comando /canalyoutube
 @bot.message_handler(commands=["canalyoutube"])
 def cmd_canalyoutube(message):
-    bot.reply_to(message, "Mi YouTube es: https://www.youtube.com/@nms_sicario023", reply_markup=keyboard1)
+    bt.reply_to(message, "Mi YouTube es: https://www.youtube.com/@nms_sicario023", reply_markup=keyboard1)
  
 # Responder al comando /paginaweb
 @bot.message_handler(commands=["paginaweb"])

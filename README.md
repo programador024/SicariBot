@@ -82,7 +82,7 @@ $ pip install git+https://github.com/pytube/pytube
 
 Este proyecto fue creado: by <a href="https://github.com/programador024" target="_blank">SicarioOfc</a>
 
-Prohibido la copia de información, este repositor solo es una ayuda para la creación de sus bots, toda la información mostrada pertenece a su creador.
+Prohibido la copia de información, este repositor solo es una ayuda para la creación de sus bots, toda la información mostrada pertenece a su creador, cualquier duda o pregunta puedes contactarme al siguiente correo <a href="mailto:teamzetasprivatev1@gmail.com?subject=Consulta&body=Hola,%20me%20gustaría%20saber%20más%20sobre..." style=" text-decoration: none;" target="_blank">teamzetasprivatev1@gmail.com</a>.
 
 &#xa0;
 
