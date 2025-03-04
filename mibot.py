@@ -251,7 +251,7 @@ def cmd_canaltelegram(message):
 # Responder al comando /canalyoutube
 @bot.message_handler(commands=["canalyoutube"])
 def cmd_canalyoutube(message):
-    bt.reply_to(message, "Mi YouTube es: https://www.youtube.com/@nms_sicario023", reply_markup=keyboard1)
+    bot.reply_to(message, "Mi YouTube es: https://www.youtube.com/@nms_sicario023", reply_markup=keyboard1)
  
 # Responder al comando /paginaweb
 @bot.message_handler(commands=["paginaweb"])
