@@ -114,6 +114,7 @@ bot.set_my_commands([
     BotCommand("paginaweb", "Página web del creador"),
     BotCommand("registro", "Registrarte con el bot"),
     BotCommand("perfil", "Ver tu perfil registrado"),
+    BotCommand("editarperfil","Editar tu perfil"),
     BotCommand("deleteusuario", "Eliminar tu perfil registrado"),
     BotCommand("mtmanager", "Aplicación para editar strings y codigos de mods"),
     BotCommand("mtmanagerbeta", "Aplicación para editar cadenas y codigosde Apps de manera mas avanzada"),
@@ -171,6 +172,7 @@ Comandos disponibles:
 📝 Registro:
 /registro - Registrarte
 /perfil - Ver tu perfil
+/editarperfil - Editar tu perfil
 /deleteusuario - Eliminar perfil
 🕹️ Apps Premium:
 /mtmanager - Editar strings y códigos
@@ -197,7 +199,7 @@ Comandos disponibles:
 @bot.message_handler(func=lambda message: message.text in ["🙍‍  Cuenta", "⚙️  Ayuda", "🛠️  Soporte", "📝  Calificar", "📊 Ver Calificaciones"])
 def cmd_kb_answer(message):
     if message.text == "🙍‍  Cuenta":
-        bot.reply_to(message, "Digita los siguientes comandos, para lo que desees hacer en tu cuenta. \n\n/registro - Registrarte\n\n/perfil - Ver tu perfil\n\n/deleteusuario - Eliminar perfil")
+        bot.reply_to(message, "Digita los siguientes comandos, para lo que desees hacer en tu cuenta. \n\n/registro - Registrarte\n\n/perfil - Ver tu perfil\n\n/editarperfil - Editar tu perfil\n\n/deleteusuario - Eliminar perfil")
     elif message.text == "⚙️  Ayuda":
         bot.reply_to(message, "Para el uso del bot, digita los siguientes comandos. \n\n/start - Iniciar el bot\n\n/menu - Ver el menu completo\n\n/creador - Información del creador")
     elif message.text == "🛠️  Soporte":
@@ -384,6 +386,90 @@ def calcular_edad(fecha_nacimiento):
     # Calcular la edad correctamente
     edad = hoy.year - fecha_nacimiento.year - ((hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day))
     return edad
+
+
+# Comando /editarperfil
+@bot.message_handler(commands=["editarperfil"])
+def cmd_editarperfil(message):
+    chat_id = message.chat.id
+    with obtener_conexion() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM usuarios WHERE chat_id = ?", (chat_id,))
+        user = cursor.fetchone()
+
+    if not user:
+        bot.send_message(chat_id, "❌ No tienes un perfil registrado. Usa /registro para crear uno.")
+        return
+
+    bot.send_message(chat_id, "🔄 Vamos a actualizar tu perfil.\n\nEscribe tu *nuevo nombre completo* o escribe 'no' para dejarlo igual:")
+    bot.register_next_step_handler(message, editar_nombre)
+
+
+def editar_nombre(message):
+    chat_id = message.chat.id
+    nuevo_nombre = message.text if message.text.lower() != "no" else None
+
+    bot.send_message(chat_id, "📆 Escribe tu *nueva fecha de nacimiento* (DD/MM/AAAA) o 'no' para dejarla igual:")
+    bot.register_next_step_handler(message, editar_fecha, nuevo_nombre)
+
+
+def editar_fecha(message, nuevo_nombre):
+    chat_id = message.chat.id
+    try:
+        nueva_fecha = datetime.strptime(message.text, "%d/%m/%Y").strftime("%Y-%m-%d") if message.text.lower() != "no" else None
+        bot.send_message(chat_id, "🎭 Escribe tu *nuevo rol o hobby* o 'no' para dejarlo igual:")
+        bot.register_next_step_handler(message, editar_rol, nuevo_nombre, nueva_fecha)
+    except ValueError:
+        bot.send_message(chat_id, "❌ Formato incorrecto. Usa DD/MM/AAAA o escribe 'no'.")
+        bot.register_next_step_handler(message, editar_fecha, nuevo_nombre)
+
+
+def editar_rol(message, nuevo_nombre, nueva_fecha):
+    chat_id = message.chat.id
+    nuevo_rol = message.text if message.text.lower() != "no" else None
+
+    bot.send_message(chat_id, "🌍 Escribe tu *nuevo país* o 'no' para dejarlo igual:")
+    bot.register_next_step_handler(message, editar_pais, nuevo_nombre, nueva_fecha, nuevo_rol)
+
+
+def editar_pais(message, nuevo_nombre, nueva_fecha, nuevo_rol):
+    chat_id = message.chat.id
+    nuevo_pais = message.text if message.text.lower() != "no" else None
+
+    bot.send_message(chat_id, "🖼️ Envíame tu nueva foto de perfil o escribe 'no' para mantener la actual.")
+    bot.register_next_step_handler(message, editar_imagen, nuevo_nombre, nueva_fecha, nuevo_rol, nuevo_pais)
+
+
+def editar_imagen(message, nuevo_nombre, nueva_fecha, nuevo_rol, nuevo_pais):
+    chat_id = message.chat.id
+    nueva_foto = message.photo[-1].file_id if message.content_type == "photo" else None
+
+    with obtener_conexion() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM usuarios WHERE chat_id = ?", (chat_id,))
+        user = cursor.fetchone()
+
+        if user:
+            # Datos actuales del usuario en la BD
+            _, _, username, nombre, fecha, rol, pais, foto = user
+
+            # Actualizar solo los valores que el usuario cambió
+            cursor.execute("""
+                UPDATE usuarios 
+                SET nombre_completo = ?, fecha_nacimiento = ?, rol = ?, pais = ?, foto = ?
+                WHERE chat_id = ?
+            """, (
+                nuevo_nombre or nombre,
+                nueva_fecha or fecha,
+                nuevo_rol or rol,
+                nuevo_pais or pais,
+                nueva_foto or foto,
+                chat_id
+            ))
+            conn.commit()
+
+    bot.send_message(chat_id, "✅ Tu perfil ha sido actualizado. Usa /perfil para ver los cambios.")
+
 
 
 # Comando /deleteusuario
