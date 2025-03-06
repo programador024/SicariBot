@@ -52,6 +52,14 @@ Necesitaras tener instalado [Git](https://git-scm.com) y [Python](https://www.py
 ## Funciones a realizar ##
 
 ```bash
+# Actualizar lista de paquetes del sistema
+$ sudo apt update
+$ apt list --upgradable
+$ sudo apt upgrade
+# Instalar Python
+$ sudo apt install python
+# Si no funciona, instalar Python3
+$ sudo apt install python3
 # Clonar el proyecto
 $ git clone https://github.com/programador024/SicariBot.git
 # Acceder
