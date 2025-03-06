@@ -63,7 +63,7 @@ $ sudo apt install python3
 # Clonar el proyecto
 $ git clone https://github.com/programador024/SicariBot.git
 # Acceder
-$ cd bot-telegram
+$ cd SicariBot
 # Para activar el entorno virtual
 $ .venv\Scripts\Activate.ps1
 # Instalar librerias
