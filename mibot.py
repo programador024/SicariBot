@@ -631,32 +631,33 @@ def cmd_video(message):
     bot.send_message(chat_id, f"🔍 Buscando el video: {video_name}...")
 
     # Buscar el video en YouTube usando Google Custom Search
-    video_url = buscar_youtube(video_name)
+    video_url = buscar_video_youtube(video_name)
 
     if not video_url:
         bot.send_message(chat_id, "❌ No se encontró el video.")
         return
 
+    bot.send_message(chat_id, f"🎥 URL obtenida: {video_url}")
     bot.send_message(chat_id, "🎥 Descargando video, espera un momento...")
 
     # Configuración de descarga con yt-dlp
     ydl_opts = {
-        "format": "bestvideo+bestaudio/best",
+        "format": "best",
         "outtmpl": "%(title)s.%(ext)s",  # Guarda el video con el nombre de la búsqueda
         "merge_output_format": "mp4", 
-        "quiet": True,
+        "quiet": False,
+        "verbose": True,
     }
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=True)
-            video_title = info.get("title", video_name)
-            video_file = f"{video_title}.mp4"
+            video_file = ydl.prepare_filename(info)
 
         # Verificar si el archivo existe antes de enviarlo
         if os.path.exists(video_file):
             with open(video_file, "rb") as video:
-                bot.send_video(chat_id, video, caption=f"🎥 {video_title}")
+                bot.send_video(chat_id, video, caption=f"🎥 {info['title']}")
             os.remove(video_file)  # Borrar después de enviarlo
         else:
             bot.send_message(chat_id, "❌ Error: No se encontró el archivo descargado.")
