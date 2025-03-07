@@ -4,7 +4,7 @@ import os
 #Para trabajar con la AI de Telegram
 import telebot
 telebot.logger.setLevel(__import__('logging').DEBUG)
-from telebot.types import (BotCommand, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton)
+from telebot.types import (BotCommand, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton, ReactionTypeEmoji)
 #Importación optimizada y botones inline
 from datetime import datetime
 #Importar datetime para fecha/hora
@@ -79,31 +79,33 @@ def obtener_hora_local(pais):
         "Perú": "America/Lima",
         "Venezuela": "America/Caracas",
         "Alemania": "Europe/Berlín",
-        "Bolivia": "America/Bolivia/La_Paz",
-        "Brasil": "America/Brasilia",
-        "Canadá": "America/Ottawa",
-        "Cuba": "America/La_Habana",
+        "Bolivia": "America/La_Paz",
+        "Brasil": "America/Sao_Paulo",
+        "Canadá": "America/Toronto",
+        "Cuba": "America/La_Havana",
         "Dominica": "America/Roseau",
-        "Ecuador": "America/Quito",
-        "El Salvador": "America/San_Salvador",
+        "Ecuador": "America/Guayaquil",
+        "El Salvador": "America/El_Salvador",
         "España": "Europa/Madrid",
-        "Estados Unidos": "America/Whashington_D.C.",
-        "Guatemala": "America/Ciudad_de_Guatemala",
-        "Honduras": "Tegucigalpa",
-        "Japón": "Asia/Tokio",
+        "Estados Unidos": "America/New_York",
+        "Guatemala": "America/Guatemala",
+        "Honduras": "America/Tegucigalpa",
+        "Japón": "Asia/Tokyo",
         "Nicaragua": "America/Managua",
-        "Panamá": "America/Ciudad_de_Panamá",
-        "Paraguay": "America/Asunción",
+        "Panamá": "America/Panama",
+        "Paraguay": "America/Asuncion",
         "República Dominicana": "America/Santo_Domingo",
-        "Rusia": "Europe/Moscú",
-        "Paraguay": "America/Montevideo",     
+        "Rusia": "Europe/Moscow",
+        "Paraguay": "America/Montevideo"     
     }
 
-    zona_horaria = zonas_horarias.get(pais, "UTC") #Si no encuentra el pais, usa UTC
-    zona = pytz.timezone(zona_horaria)
-    ahora = datetime.now(zona)
-    return ahora.strftime("%d/%m/%Y 🕔  %H:%M:%S") 
-
+    zona_horaria = zonas_horarias.get(pais, "Etc/UTC") #Si no encuentra el pais, usa UTC
+    try:
+        zona = pytz.timezone(zona_horaria)
+        ahora = datetime.now(zona)
+        return ahora.strftime("%d/%m/%Y 🕔  %H:%M:%S") 
+    except pytz.UnknownTimeZoneError:
+        return "Error en la zona horaria"
 # Configurar los comandos disponibles en el menú
 bot.set_my_commands([
     BotCommand("start", "Inicia el bot"),
@@ -143,7 +145,12 @@ keyboard1.row(button5)
 @bot.message_handler(commands=["start"])
 def cmd_start(message):
     username = message.from_user.username or "usuario"
-    bot.reply_to(message, f"Hola @{username}, soy SicarioBot, tu asistente virtual. ¿En qué te puedo ayudar?\n\n Ejecuta /menu para ver los comandos.", reply_markup=keyboard1)
+    sent_message = bot.reply_to(message, f"Hola @{username}, soy SicarioBot, tu asistente virtual. ¿En qué te puedo ayudar?\n\n Ejecuta /menu para ver los comandos.", reply_markup=keyboard1)
+    bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("🤖")])
+ 
+# Función para obtener la conexión SQLite
+def obtener_conexion():
+    return sqlite3.connect("usuarios.db", check_same_thread=False)
 
 #Responder al comando /menu
 @bot.message_handler(commands=["menu"])
@@ -192,7 +199,8 @@ Comandos disponibles:
     boton_canal = InlineKeyboardButton("📢 VER CANAL", url="https://t.me/mds_inmunes")
     keyboard.add(boton_canal)
     with open("imagenes/sicaribot_menu2.jpg", "rb") as photo:
-        bot.send_photo(message.chat.id, photo, caption=menu_text, parse_mode='HTML', reply_markup=keyboard)
+        sent_message = bot.send_photo(message.chat.id, photo, caption=menu_text, parse_mode='HTML', reply_markup=keyboard)
+        bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("⭐")])
         bot.send_message("Selecciona una obción:", reply_markup=keyboard1)
 
 # Manejar respuestas a los botones del teclado
@@ -261,22 +269,26 @@ def mostrar_menu_principal(chat_id):
 #Responder al comando /creador
 @bot.message_handler(commands=["creador"])
 def cmd_creador(message):
-    bot.reply_to(message, f"Fui creado por SicarioOfc, puedes contactarlo en sus redes en el apartado de Redes Sociales📱 que se muestra en /menu", reply_markup=keyboard1)
+    sent_message = bot.reply_to(message, f"Fui creado por SicarioOfc, puedes contactarlo en sus redes en el apartado de Redes Sociales📱 que se muestra en /menu", reply_markup=keyboard1)
+    bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("❤️")])
 
 # Responder al comando /canaltelegram
 @bot.message_handler(commands=["canaltelegram"])
 def cmd_canaltelegram(message):
-    bot.reply_to(message, "Mi Telegram es: https://t.me/mds_inmunes", reply_markup=keyboard1)
+    sent_message = bot.reply_to(message, "Mi Telegram es: https://t.me/mds_inmunes", reply_markup=keyboard1)
+    bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("🔥")])
 
 # Responder al comando /canalyoutube
 @bot.message_handler(commands=["canalyoutube"])
 def cmd_canalyoutube(message):
-    bot.reply_to(message, "Mi YouTube es: https://www.youtube.com/@nms_sicario023", reply_markup=keyboard1)
- 
+    sent_message = bot.reply_to(message, "Mi YouTube es: https://www.youtube.com/@nms_sicario023", reply_markup=keyboard1)
+    bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("👍")]) 
+
 # Responder al comando /paginaweb
 @bot.message_handler(commands=["paginaweb"])
 def cmd_paginaweb(message):
-    bot.reply_to(message, "Mi Página Web es: https://teamzetasprivate.kesug.com/", reply_markup=keyboard1)      
+    sent_message = bot.reply_to(message, "Mi Página Web es: https://teamzetasprivate.kesug.com/", reply_markup=keyboard1)
+    bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("❤️")])      
          
 #Obtener la conexión a la base de datos         
 def obtener_conexion():
@@ -292,7 +304,8 @@ def cmd_registro(message):
         cursor.execute("SELECT * FROM usuarios WHERE chat_id = ?", (chat_id,))
         conn.commit()
         if cursor.fetchone():
-            bot.send_message(chat_id, "Ya estás registrado. Usa /perfil para ver tus datos.")
+            sent_message = bot.send_message(chat_id, "Ya estás registrado. Usa /perfil para ver tus datos.")
+            bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("❤️")])
             return
 
     bot.send_message(chat_id, "¿Cuál es tu nombre completo?")
@@ -337,9 +350,9 @@ def obtener_imagen(message, username, nombre_completo, fecha_nacimiento, rol, pa
                        (chat_id, username, nombre_completo, fecha_nacimiento, rol, pais, foto))
         conn.commit()
 
-    bot.send_message(chat_id, "✅ Registro completado. Usa /perfil para ver tus datos.")
+    sent_message = bot.send_message(chat_id, "✅ Registro completado. Usa /perfil para ver tus datos.")
+    bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("✍️")])
 
-    
     
 import re
 
@@ -371,11 +384,13 @@ def cmd_perfil(message):
         )
 
         if foto:
-            bot.send_photo(chat_id, foto, caption=perfil, parse_mode="MarkdownV2")
+            sent_message = bot.send_photo(chat_id, foto, caption=perfil, parse_mode="MarkdownV2")
+            bot.set_message_reaction(message.chat.id, message.message_id + 1, [ReactionTypeEmoji("❤️")])
         else:
             bot.send_message(chat_id, f"⚠️ No tienes foto de perfil. \n{perfil}", parse_mode="MarkdownV2")
     else:
-        bot.send_message(chat_id, "No estás registrado❌. Usa /registro para comenzar.")
+        sent_message = bot.send_message(chat_id, "No estás registrado❌. Usa /registro para comenzar.")
+        bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("✍️")])
 
 
 def calcular_edad(fecha_nacimiento):
@@ -398,7 +413,8 @@ def cmd_editarperfil(message):
         user = cursor.fetchone()
 
     if not user:
-        bot.send_message(chat_id, "❌ No tienes un perfil registrado. Usa /registro para crear uno.")
+        sent_message = bot.send_message(chat_id, "❌ No tienes un perfil registrado. Usa /registro para crear uno.") 
+        bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("✍️")])
         return
 
     bot.send_message(chat_id, "🔄 Vamos a actualizar tu perfil.\n\nEscribe tu *nuevo nombre completo* o escribe 'no' para dejarlo igual:")
@@ -468,9 +484,8 @@ def editar_imagen(message, nuevo_nombre, nueva_fecha, nuevo_rol, nuevo_pais):
             ))
             conn.commit()
 
-    bot.send_message(chat_id, "✅ Tu perfil ha sido actualizado. Usa /perfil para ver los cambios.")
-
-
+    sent_message = bot.send_message(chat_id, "✅ Tu perfil ha sido actualizado. Usa /perfil para ver los cambios.")
+    bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("❤️")])
 
 # Comando /deleteusuario
 @bot.message_handler(commands=["deleteusuario"])
@@ -481,8 +496,8 @@ def cmd_deleteusuario(message):
         cursor.execute("DELETE FROM usuarios WHERE chat_id = ?", (chat_id,))
         conn.commit()
         
-    bot.send_message(chat_id, "✅ Tu perfil ha sido eliminado. Usa /registro para crear uno nuevo.")
-
+    sent_message = bot.send_message(chat_id, "✅ Tu perfil ha sido eliminado. Usa /registro para crear uno nuevo.")
+    bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("⭐")])
 
 #Agregar función para restringir a las aplicaciones mediante el registro de los usuarios
 def obtener_conexion():
@@ -505,39 +520,44 @@ def acceso_restringido(func):
         if usuario_registrado(message.chat.id):
             return func(message)
         else:
-            bot.send_message(message.chat.id, "⚠️ Debes registrarte con /registro para usar este comando.", reply_markup=keyboard1)
+            sent_message = bot.send_message(message.chat.id, "⚠️ Debes registrarte con /registro para usar este comando.", reply_markup=keyboard1)
+            bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("✍️")])
     return wrapper
 
 @bot.message_handler(commands=["mtmanager"])
 @acceso_restringido
 def cmd_mtmanager(message):
     with open("resources/MT Manager_2.18.0.apk", "rb") as mtmanager:
-        bot.send_document(message.chat.id, mtmanager, reply_markup=keyboard1)
+        sent_message = bot.send_document(message.chat.id, mtmanager, reply_markup=keyboard1)
+        bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("🖤")])
 
 @bot.message_handler(commands=["mtmanagerbeta"])
 @acceso_restringido
 def cmd_mtmanagerbeta(message):
     with open("resources/MT Manager_2.14.5-clone.apk", "rb") as mtmanagerbeta:
-        bot.send_document(message.chat.id, mtmanagerbeta, reply_markup=keyboard1)
+        sent_message = bot.send_document(message.chat.id, mtmanagerbeta, reply_markup=keyboard1)
+        bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("🩶")])
 
 @bot.message_handler(commands=["apkeditorpro"])
 @acceso_restringido
 def cmd_apkeditorpro(message):
     with open("resources/APK Editor Pro_1.10.0.apk", "rb") as apkeditorpro:
-        bot.send_document(message.chat.id, apkeditorpro, reply_markup=keyboard1)
+        sent_message = bot.send_document(message.chat.id, apkeditorpro, reply_markup=keyboard1)
+        bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("🤍")])
 
 @bot.message_handler(commands=["apktoolm"])
 @acceso_restringido
 def cmd_apktoolm(message):
     with open("resources/Apktool M_2.4.0-250121.apk", "rb") as apktoolm:
-        bot.send_document(message.chat.id, apktoolm, reply_markup=keyboard1)
-
+        sent_message = bot.send_document(message.chat.id, apktoolm, reply_markup=keyboard1)
+        bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("💙")])
     
 @bot.message_handler(commands=["telegrampremium"])
 @acceso_restringido
 def cmd_telegrampremium(message):
-    bot.reply_to(message, "Telegram PremiumV2: https://www.mediafire.com/file/nmqqa8ztye660i9/%25F0%259F%2594%25A5%25E2%2583%259F%25E2%2598%25A0%25EF%25B8%258ETelegram_Sicari%25F0%259F%258E%25ADV2.apk/file", reply_markup=keyboard1)    
-    
+    sent_message = bot.reply_to(message, "Telegram PremiumV2: https://www.mediafire.com/file/nmqqa8ztye660i9/%25F0%259F%2594%25A5%25E2%2583%259F%25E2%2598%25A0%25EF%25B8%258ETelegram_Sicari%25F0%259F%258E%25ADV2.apk/file", reply_markup=keyboard1)    
+    bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("💜")])    
+
 # Función para buscar imágenes en Google
 def buscar_imagen(query):
     service = build("customsearch", "v1", developerKey=API_KEY)
@@ -553,7 +573,8 @@ def cmd_imagen(message):
     query = message.text.replace("/imagen ", "")
     imagen_url = buscar_imagen(query)
     if imagen_url:
-        bot.send_photo(message.chat.id, imagen_url, caption=f"Imagen encontrada para: {query}")
+        sent_message = bot.send_photo(message.chat.id, imagen_url, caption=f"Imagen encontrada para: {query}")
+        bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("🖼️")])
     else:
         bot.send_message(message.chat.id, "No encontré imágenes para esa búsqueda.")
         
@@ -604,7 +625,8 @@ def cmd_musica(message):
         # Asegurar que el archivo existe antes de enviarlo
         if os.path.exists(audio_filename):
             with open(audio_filename, "rb") as audio:
-                bot.send_audio(chat_id, audio, caption=f"🎵 Aquí tienes: {video_title}")
+                sent_message = bot.send_audio(chat_id, audio, caption=f"🎵 Aquí tienes: {video_title}")
+                bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("🎵")])
             
             os.remove(audio_filename)  # Eliminar el archivo después de enviarlo
 
@@ -657,14 +679,16 @@ def cmd_video(message):
         # Verificar si el archivo existe antes de enviarlo
         if os.path.exists(video_file):
             with open(video_file, "rb") as video:
-                bot.send_video(chat_id, video, caption=f"🎥 {info['title']}")
+                sent_message = bot.send_video(chat_id, video, caption=f"🎥 {info['title']}")
+                bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("🎥")])
             os.remove(video_file)  # Borrar después de enviarlo
         else:
             bot.send_message(chat_id, "❌ Error: No se encontró el archivo descargado.")
 
     except Exception as e:
         bot.send_message(chat_id, f"❌ Ocurrió un error: {e}")
-
+        if os.path.exists(video_file):
+            os.remove(video_file)
 
 # Función para buscar en Google con Custom Search A
 def buscar_en_google(query):
@@ -699,8 +723,8 @@ def cmd_aibuscar(message):
     bot.send_message(message.chat.id, f"🔍 Buscando en Google: {query} ...")
 
     resultado = buscar_en_google(query)
-    bot.send_message(message.chat.id, resultado)
-    
+    sent_message = bot.send_message(message.chat.id, resultado)
+    bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("🔎")])
     
 # Comando /aisticker
 @bot.message_handler(commands=["aisticker"])
@@ -708,7 +732,8 @@ def cmd_aibuscar(message):
 def cmd_aisticker(message):
     chat_id = message.chat.id
     esperando_imagen[chat_id] = True  # Guardamos que el usuario espera enviar una imagen
-    bot.send_message(chat_id, "Envíame una imagen y la convertiré en un sticker.")
+    sent_message = bot.send_message(chat_id, "Envíame una imagen y la convertiré en un sticker.")
+    bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("❤️")])
 
 # Manejar imágenes enviadas
 @bot.message_handler(content_types=["photo"])
@@ -732,7 +757,8 @@ def recibir_imagen(message):
         sticker_path = convertir_a_sticker(image_path)
 
         if sticker_path:
-            bot.send_sticker(chat_id, open(sticker_path, "rb"))
+            sent_message = bot.send_sticker(chat_id, open(sticker_path, "rb"))
+            bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("⭐")])
             os.remove(sticker_path)  # Eliminar archivo después de enviarlo
         else:
             bot.send_message(chat_id, "❌ Ocurrió un error al crear el sticker")
@@ -769,8 +795,8 @@ def respuestas_automaticas(message):
         "adiós": "¡Hasta luego! Que tengas un gran día. 👋",
         "Adiós": "¡Hasta luego! Que tengas un gran día. 👋"
     }
-    bot.reply_to(message, respuestas[texto])
-
+    sent_message = bot.reply_to(message, respuestas[texto])
+    bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("❤️")])
     
 # Inicializar el bot
 if __name__ == '__main__':

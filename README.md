@@ -23,7 +23,7 @@
 
 ## Acerca del bot ##
 
-Este proyecto fue realizado con el proposito de crear un bot para Telegram con la ayuda del lenguaje de Python y añadiendo distintas bibliotecas en ello. La función que tiene es realizar distintas busquedas de archivos a travez de los comandos con la ayuda de inteligencia artificial, asi como el registro de los usuarios. El bot fue creado por su servidor SicarioOfc, para que los usuarios lo ocupen a su gusto.
+Este proyecto fue realizado con el proposito de crear un bot para Telegram con la ayuda del lenguaje de Python y añadiendo distintas bibliotecas en ello. La función que tiene es realizar distintas busquedas de archivos a travez de los comandos con la ayuda de inteligencia artificial, asi como el registro de los usuarios. El bot fue creado por su servidor SicarioOfc, para que los usuarios lo ocupen a su gusto. Si te gusto este bot me apoyaria mucho dandole click a la estrella⭐ para agregarlo a tus favoritos y estar al tanto de las actualizaciones y cambios que se vayan realizando.
 
 ## Requisitos necesarios ##
 
