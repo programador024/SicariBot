@@ -625,9 +625,7 @@ def cmd_musica(message):
         # Asegurar que el archivo existe antes de enviarlo
         if os.path.exists(audio_filename):
             with open(audio_filename, "rb") as audio:
-                sent_message = bot.send_audio(chat_id, audio, caption=f"🎵 Aquí tienes: {video_title}")
-                bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("🎵")])
-            
+                bot.send_audio(chat_id, audio, caption=f"🎵 Aquí tienes: {video_title}")
             os.remove(audio_filename)  # Eliminar el archivo después de enviarlo
 
         else:
@@ -679,8 +677,7 @@ def cmd_video(message):
         # Verificar si el archivo existe antes de enviarlo
         if os.path.exists(video_file):
             with open(video_file, "rb") as video:
-                sent_message = bot.send_video(chat_id, video, caption=f"🎥 {info['title']}")
-                bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("🎥")])
+                bot.send_video(chat_id, video, caption=f"🎥 {info['title']}")
             os.remove(video_file)  # Borrar después de enviarlo
         else:
             bot.send_message(chat_id, "❌ Error: No se encontró el archivo descargado.")

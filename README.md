@@ -60,6 +60,8 @@ $ sudo apt upgrade
 $ sudo apt install python
 # Si no funciona, instalar Python3
 $ sudo apt install python3
+# Instalar ffmpeg
+$ sudo apt install ffmpeg -y
 # Clonar el proyecto
 $ git clone https://github.com/programador024/SicariBot.git
 # Acceder
