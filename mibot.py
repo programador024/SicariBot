@@ -1,6 +1,7 @@
 #Aqui importamos el token
 from config import *
 import os
+import json
 #Para trabajar con la AI de Telegram
 import telebot
 telebot.logger.setLevel(__import__('logging').DEBUG)
@@ -106,6 +107,26 @@ def obtener_hora_local(pais):
         return ahora.strftime("%d/%m/%Y 🕔  %H:%M:%S") 
     except pytz.UnknownTimeZoneError:
         return "Error en la zona horaria"
+
+# Archivo donde guardaremos los usuarios suscritos
+SUSCRIPTORES_FILE = "suscriptores.json"
+
+# Función para cargar suscriptores desde un archivo
+def cargar_suscriptores():
+    try:
+        with open(SUSCRIPTORES_FILE, "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return []
+
+# Función para guardar suscriptores en un archivo
+def guardar_suscriptores(suscriptores):
+    with open(SUSCRIPTORES_FILE, "w") as f:
+        json.dump(suscriptores, f)
+
+# Cargar suscriptores al iniciar el bot
+suscriptores = cargar_suscriptores()
+
 # Configurar los comandos disponibles en el menú
 bot.set_my_commands([
     BotCommand("start", "Inicia el bot"),
@@ -140,6 +161,12 @@ keyboard1 = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
 keyboard1.row(button1, button2)
 keyboard1.row(button3, button4)
 keyboard1.row(button5)
+
+#Crear los botones inline suscribirse y desuscribirse
+btn_subs = InlineKeyboardButton("✅ Suscribirse", callback_data="suscribirse")
+btn_unsubs = InlineKeyboardButton("❌ Desuscribirse", callback_data="desuscribirse")
+notificacion1 = InlineKeyboardMarkup()
+notificacion1.row(btn_subs, btn_unsubs)
 
 #Responder al comando /start
 @bot.message_handler(commands=["start"])
@@ -384,7 +411,7 @@ def cmd_perfil(message):
         )
 
         if foto:
-            sent_message = bot.send_photo(chat_id, foto, caption=perfil, parse_mode="MarkdownV2")
+            sent_message = bot.send_photo(chat_id, foto, caption=perfil, parse_mode="MarkdownV2", reply_markup=notificacion1)
             bot.set_message_reaction(message.chat.id, message.message_id + 1, [ReactionTypeEmoji("❤️")])
         else:
             bot.send_message(chat_id, f"⚠️ No tienes foto de perfil. \n{perfil}", parse_mode="MarkdownV2")
@@ -402,6 +429,46 @@ def calcular_edad(fecha_nacimiento):
     edad = hoy.year - fecha_nacimiento.year - ((hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day))
     return edad
 
+
+# Manejar la respuesta de los botones
+@bot.callback_query_handler(func=lambda call: call.data in ["suscribirse", "desuscribirse"])
+def manejar_suscripcion(call):
+    chat_id = call.message.chat.id
+    username = call.from_user.username or "Usuario"
+
+    # Cargar suscriptores
+    suscriptores = cargar_suscriptores()
+
+    if call.data == "suscribirse":
+        if chat_id not in suscriptores:
+            suscriptores.append(chat_id)
+            guardar_suscriptores(suscriptores)
+            bot.answer_callback_query(call.id, "✅ Te has suscrito correctamente.")
+            bot.edit_message_reply_markup(chat_id, call.message.message_id, reply_markup=None)  # Opcional: eliminar botones
+            bot.send_message(chat_id, f"🎉 @{username}, ahora recibirás notificaciones.")
+        else:
+            bot.answer_callback_query(call.id, "Ya estás suscrito.")
+    
+    elif call.data == "desuscribirse":
+        if chat_id in suscriptores:
+            suscriptores.remove(chat_id)
+            guardar_suscriptores(suscriptores)
+            bot.answer_callback_query(call.id, "❌ Te has desuscrito correctamente.")
+            bot.edit_message_reply_markup(chat_id, call.message.message_id, reply_markup=None)  # Opcional: eliminar botones
+            bot.send_message(chat_id, f"🔕 @{username}, has cancelado tu suscripción.")
+        else:
+            bot.answer_callback_query(call.id, "No estabas suscrito.")
+
+# Función para enviar una notificación a todos los suscriptores
+def enviar_notificacion(mensaje):
+    for chat_id in suscriptores:
+        try:
+            bot.send_message(chat_id, mensaje)
+        except Exception as e:
+            print(f"Error enviando notificación a {chat_id}: {e}")
+
+# Enviar notificación cada vez que se reinicia el bot
+enviar_notificacion("🔔 SicarioBot🤖 ha sido actualizado...\n\nDigitar /start para ver los nuevos cambios.")
 
 # Comando /editarperfil
 @bot.message_handler(commands=["editarperfil"])
@@ -548,14 +615,14 @@ def cmd_apkeditorpro(message):
 @bot.message_handler(commands=["apktoolm"])
 @acceso_restringido
 def cmd_apktoolm(message):
-    with open("resources/Apktool M_2.4.0-250121.apk", "rb") as apktoolm:
+    with open("resources/Apktool_M_v2.4.0.rar", "rb") as apktoolm:
         sent_message = bot.send_document(message.chat.id, apktoolm, reply_markup=keyboard1)
         bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("💙")])
     
 @bot.message_handler(commands=["telegrampremium"])
 @acceso_restringido
 def cmd_telegrampremium(message):
-    sent_message = bot.reply_to(message, "Telegram PremiumV2: https://www.mediafire.com/file/nmqqa8ztye660i9/%25F0%259F%2594%25A5%25E2%2583%259F%25E2%2598%25A0%25EF%25B8%258ETelegram_Sicari%25F0%259F%258E%25ADV2.apk/file", reply_markup=keyboard1)    
+    sent_message = bot.reply_to(message, "Telegram PremiumV3: https://www.mediafire.com/file/55teh796m17yrpk/%25F0%259F%2594%25A5%25E2%2583%259F%25E2%2598%25A0%25EF%25B8%258E%25F0%259D%2594%2597%25F0%259D%2594%25A2%25F0%259D%2594%25A9%25F0%259D%2594%25A2%25F0%259D%2594%25A4%25F0%259D%2594%25AF%25F0%259D%2594%259E%25F0%259D%2594%25AA_%25F0%259D%2594%2596%25F0%259D%2594%25A6%25F0%259D%2594%25A0%25F0%259D%2594%259E%25F0%259D%2594%25AF%25F0%259D%2594%25A6%25F0%259F%258E%25AD%25F0%259D%2593%25A53.rar/file", reply_markup=keyboard1)    
     bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("💜")])    
 
 # Función para buscar imágenes en Google
