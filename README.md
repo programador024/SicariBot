@@ -9,13 +9,14 @@
 <h1 align="center">SICARIOBOT🤖</h1>
  
 </p>
-
+<div align="center">
 <P align="left">
 <a href="https://www.youtube.com/@nms_sicario023" target="blank"><img align="center" src="https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="YouTube"></a>
 <a href="https://t.me/mds_inmunes" target="blank"><img align="center" src="https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram"</a>
-<a href="https://teamzetasprivate.kesug.com" target="blank"><img align="center" src="https://img.shields.io/badge/sitioweb-000000?style=for-the-badge&logo=About.me&logoColor=white" alt="Sitioweb"></a>
+<a href="https://teamzetasprivate.kesug.com" target="blank"><img align="center" src="https://img.shields.io/badge/teamzetasprivate-000000?style=for-the-badge&logo=About.me&logoColor=white" alt="Sitioweb"></a>
 <a href="mailto:teamzetasprivatev1@gmail.com?subject=Consulta&body=Hola,%20me%20gustaría%20saber%20más%20sobre..." target="blank"><img align="center" src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Gmail"</a>
 </P>
+</div>
 
  <h4 align="center"> 
 	🚧  SicarioBot 🚀 Bajo construcción...  🚧
@@ -114,5 +115,6 @@ Prohibido la copia de información, este repositor solo es una ayuda para la cre
   </td>
 </tr>
 </table>
+</p>
 
 <a href="#top">Volver arriba</a>
