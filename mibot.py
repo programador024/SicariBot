@@ -468,7 +468,7 @@ def enviar_notificacion(mensaje):
             print(f"Error enviando notificación a {chat_id}: {e}")
 
 # Enviar notificación cada vez que se reinicia el bot
-enviar_notificacion("🔔 SicarioBot🤖 ha sido actualizado...\n\nDigitar /start para ver los nuevos cambios.")
+enviar_notificacion("🔔 SicarioBot  ha sido actualizado...\n\nDigitar /start para ver los nuevos cambios.")
 
 # Comando /editarperfil
 @bot.message_handler(commands=["editarperfil"])
@@ -622,7 +622,7 @@ def cmd_apktoolm(message):
 @bot.message_handler(commands=["telegrampremium"])
 @acceso_restringido
 def cmd_telegrampremium(message):
-    sent_message = bot.reply_to(message, "Telegram PremiumV3: https://www.mediafire.com/file/55teh796m17yrpk/%25F0%259F%2594%25A5%25E2%2583%259F%25E2%2598%25A0%25EF%25B8%258E%25F0%259D%2594%2597%25F0%259D%2594%25A2%25F0%259D%2594%25A9%25F0%259D%2594%25A2%25F0%259D%2594%25A4%25F0%259D%2594%25AF%25F0%259D%2594%259E%25F0%259D%2594%25AA_%25F0%259D%2594%2596%25F0%259D%2594%25A6%25F0%259D%2594%25A0%25F0%259D%2594%259E%25F0%259D%2594%25AF%25F0%259D%2594%25A6%25F0%259F%258E%25AD%25F0%259D%2593%25A53.rar/file", reply_markup=keyboard1)    
+    sent_message = bot.reply_to(message, "Telegram PremiumV3: https://www.mediafire.com/file/sdo8d8jhn4ei5di/%25F0%259F%2594%25A5%25E2%2583%259F%25E2%2598%25A0%25EF%25B8%258E%25F0%259D%2594%2597%25F0%259D%2594%25A2%25F0%259D%2594%25A9%25F0%259D%2594%25A2%25F0%259D%2594%25A4%25F0%259D%2594%25AF%25F0%259D%2594%259E%25F0%259D%2594%25AA_%25F0%259D%2594%2596%25F0%259D%2594%25A6%25F0%259D%2594%25A0%25F0%259D%2594%259E%25F0%259D%2594%25AF%25F0%259D%2594%25A6%25F0%259F%258E%25AD%25F0%259D%2593%25A53.apk/file", reply_markup=keyboard1)    
     bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("💜")])    
 
 # Función para buscar imágenes en Google
@@ -700,6 +700,8 @@ def cmd_musica(message):
 
     except Exception as e:
         bot.send_message(chat_id, f"❌ Ocurrió un error: {e}")
+        if os.path.exists(audio_filename):
+            os.remove(audio_filename)
         
 
 # Comando /video para descargar un video
@@ -848,12 +850,14 @@ def convertir_a_sticker(image_path):
         return None           
 
 # Respuestas automáticas a ciertas palabras clave
-@bot.message_handler(func=lambda message: message.text.lower() in ["hola", "Hola", "gracias", "Gracias", "adiós", "Adiós"])
+@bot.message_handler(func=lambda message: message.text.lower() in ["hola", "Hola",  "Buenos días", "buenos días", "gracias", "Gracias", "adiós", "Adiós"])
 def respuestas_automaticas(message):
     texto = message.text.lower()
     respuestas = {
         "hola": "¡Hola! soy SicarioBot🤖, tu asistente virtual. ¿En qué te puedo ayudar? Ejecuta /menu para ver los comandos.",
         "Hola": "¡Hola! soy SicarioBot🤖, tu asistente virtual. ¿En qué te puedo ayudar? Ejecuta /menu para ver los comandos.",
+        "Buenos días": "Hola buenos días, en qué puedo ayudarte, ejecuta /menu para ver la lista de comandos😎",
+        "buenos días": "Hola buenos días, en qué puedo ayudarte, ejecuta /menu para ver la lista de comandos😎",
         "gracias": "¡De nada! Siempre estoy aqui para ayudar. 😊",
         "Gracias": "¡De nada! Siempre estoy aqui para ayudar. 😊",
         "adiós": "¡Hasta luego! Que tengas un gran día. 👋",
