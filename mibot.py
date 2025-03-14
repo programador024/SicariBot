@@ -238,7 +238,7 @@ def cmd_kb_answer(message):
     elif message.text == "⚙️  Ayuda":
         bot.reply_to(message, "Para el uso del bot, digita los siguientes comandos. \n\n/start - Iniciar el bot\n\n/menu - Ver el menu completo\n\n/creador - Información del creador")
     elif message.text == "🛠️  Soporte":
-        bot.reply_to(message, "Puedes contactar a soporte del bot, para cualquier cosa o duda.\n\nEnvia un mensaje a soporte al siguiente correo: teamzetasprivatev1@gmail.com")
+        bot.reply_to(message, 'Puedes contactar a soporte del bot, para cualquier cosa o duda.\n\nEnvia un mensaje a soporte al siguiente correo: <a href="mailto:teamzetasprivatev1@gmail.com?subject=Soporte%20De%20SicariBot&body=Hola,%20me%20gustaría%20saber%20más%20sobre...">teamzetasprivatev1@gmail.com</a>', parse_mode='HTML')
     elif message.text == "📝  Calificar":
         markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
         botones = [KeyboardButton(str(i)) for i in range(1, 11)]  # Botones del 1 al 10
@@ -468,7 +468,7 @@ def enviar_notificacion(mensaje):
             print(f"Error enviando notificación a {chat_id}: {e}")
 
 # Enviar notificación cada vez que se reinicia el bot
-enviar_notificacion("🔔 SicarioBot  ha sido actualizado...\n\nDigitar /start para ver los nuevos cambios.")
+enviar_notificacion("🔔 SicarioBot🤖 ha sido actualizado...\n\nDigitar /start para ver los nuevos cambios.")
 
 # Comando /editarperfil
 @bot.message_handler(commands=["editarperfil"])
@@ -594,7 +594,7 @@ def acceso_restringido(func):
 @bot.message_handler(commands=["mtmanager"])
 @acceso_restringido
 def cmd_mtmanager(message):
-    with open("resources/MT Manager_2.18.0.apk", "rb") as mtmanager:
+    with open("resources/MT Manager_2.18.1.apk", "rb") as mtmanager:
         sent_message = bot.send_document(message.chat.id, mtmanager, reply_markup=keyboard1)
         bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("🖤")])
 
@@ -615,14 +615,14 @@ def cmd_apkeditorpro(message):
 @bot.message_handler(commands=["apktoolm"])
 @acceso_restringido
 def cmd_apktoolm(message):
-    with open("resources/Apktool_M_v2.4.0.rar", "rb") as apktoolm:
+    with open("resources/Apktool M_2.4.0-250308.apk", "rb") as apktoolm:
         sent_message = bot.send_document(message.chat.id, apktoolm, reply_markup=keyboard1)
         bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("💙")])
     
 @bot.message_handler(commands=["telegrampremium"])
 @acceso_restringido
 def cmd_telegrampremium(message):
-    sent_message = bot.reply_to(message, "Telegram PremiumV3: https://www.mediafire.com/file/sdo8d8jhn4ei5di/%25F0%259F%2594%25A5%25E2%2583%259F%25E2%2598%25A0%25EF%25B8%258E%25F0%259D%2594%2597%25F0%259D%2594%25A2%25F0%259D%2594%25A9%25F0%259D%2594%25A2%25F0%259D%2594%25A4%25F0%259D%2594%25AF%25F0%259D%2594%259E%25F0%259D%2594%25AA_%25F0%259D%2594%2596%25F0%259D%2594%25A6%25F0%259D%2594%25A0%25F0%259D%2594%259E%25F0%259D%2594%25AF%25F0%259D%2594%25A6%25F0%259F%258E%25AD%25F0%259D%2593%25A53.apk/file", reply_markup=keyboard1)    
+    sent_message = bot.reply_to(message, "Telegram PremiumV3: https://www.mediafire.com/file/55teh796m17yrpk/%25F0%259F%2594%25A5%25E2%2583%259F%25E2%2598%25A0%25EF%25B8%258E%25F0%259D%2594%2597%25F0%259D%2594%25A2%25F0%259D%2594%25A9%25F0%259D%2594%25A2%25F0%259D%2594%25A4%25F0%259D%2594%25AF%25F0%259D%2594%259E%25F0%259D%2594%25AA_%25F0%259D%2594%2596%25F0%259D%2594%25A6%25F0%259D%2594%25A0%25F0%259D%2594%259E%25F0%259D%2594%25AF%25F0%259D%2594%25A6%25F0%259F%258E%25AD%25F0%259D%2593%25A53.rar/file", reply_markup=keyboard1)    
     bot.set_message_reaction(sent_message.chat.id, sent_message.message_id, [ReactionTypeEmoji("💜")])    
 
 # Función para buscar imágenes en Google
@@ -700,8 +700,6 @@ def cmd_musica(message):
 
     except Exception as e:
         bot.send_message(chat_id, f"❌ Ocurrió un error: {e}")
-        if os.path.exists(audio_filename):
-            os.remove(audio_filename)
         
 
 # Comando /video para descargar un video
@@ -850,14 +848,12 @@ def convertir_a_sticker(image_path):
         return None           
 
 # Respuestas automáticas a ciertas palabras clave
-@bot.message_handler(func=lambda message: message.text.lower() in ["hola", "Hola",  "Buenos días", "buenos días", "gracias", "Gracias", "adiós", "Adiós"])
+@bot.message_handler(func=lambda message: message.text.lower() in ["hola", "Hola", "gracias", "Gracias", "adiós", "Adiós"])
 def respuestas_automaticas(message):
     texto = message.text.lower()
     respuestas = {
         "hola": "¡Hola! soy SicarioBot🤖, tu asistente virtual. ¿En qué te puedo ayudar? Ejecuta /menu para ver los comandos.",
         "Hola": "¡Hola! soy SicarioBot🤖, tu asistente virtual. ¿En qué te puedo ayudar? Ejecuta /menu para ver los comandos.",
-        "Buenos días": "Hola buenos días, en qué puedo ayudarte, ejecuta /menu para ver la lista de comandos😎",
-        "buenos días": "Hola buenos días, en qué puedo ayudarte, ejecuta /menu para ver la lista de comandos😎",
         "gracias": "¡De nada! Siempre estoy aqui para ayudar. 😊",
         "Gracias": "¡De nada! Siempre estoy aqui para ayudar. 😊",
         "adiós": "¡Hasta luego! Que tengas un gran día. 👋",
