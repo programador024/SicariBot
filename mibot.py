@@ -157,10 +157,11 @@ button2 = KeyboardButton("⚙️  Ayuda")
 button3 = KeyboardButton("🛠️  Soporte")
 button4 = KeyboardButton("📝  Calificar")
 button5 = KeyboardButton("📊 Ver Calificaciones")
+button6 = KeyboardButton("💸 Donación")
 keyboard1 = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
 keyboard1.row(button1, button2)
 keyboard1.row(button3, button4)
-keyboard1.row(button5)
+keyboard1.row(button5, button6)
 
 #Crear los botones inline suscribirse y desuscribirse
 btn_subs = InlineKeyboardButton("✅ Suscribirse", callback_data="suscribirse")
@@ -231,7 +232,7 @@ Comandos disponibles:
         bot.send_message("Selecciona una obción:", reply_markup=keyboard1)
 
 # Manejar respuestas a los botones del teclado
-@bot.message_handler(func=lambda message: message.text in ["🙍‍  Cuenta", "⚙️  Ayuda", "🛠️  Soporte", "📝  Calificar", "📊 Ver Calificaciones"])
+@bot.message_handler(func=lambda message: message.text in ["🙍‍  Cuenta", "⚙️  Ayuda", "🛠️  Soporte", "📝  Calificar", "📊 Ver Calificaciones", "💸 Donación"])
 def cmd_kb_answer(message):
     if message.text == "🙍‍  Cuenta":
         bot.reply_to(message, "Digita los siguientes comandos, para lo que desees hacer en tu cuenta. \n\n/registro - Registrarte\n\n/perfil - Ver tu perfil\n\n/editarperfil - Editar tu perfil\n\n/deleteusuario - Eliminar perfil")
@@ -253,6 +254,8 @@ def cmd_kb_answer(message):
             resultado = cursor.fetchone()
             promedio = resultado[0] if resultado[0] else 0  # Si no hay calificaciones, muestra 0
         bot.reply_to(message, f"📊 El bot tiene una calificación promedio de: {promedio:.1f}/10 ⭐")
+    elif message.text == "💸 Donación":
+        bot.reply_to(message, "Si quieres apoyarme con una donación, para mejorar a SicarioBot🤖.\n\n🙏 ¡Gracias por tu apoyo!, Puedes hacer tu donación a través de PayPal al siguiente enlace:\n\nhttps://www.paypal.com/donate/?hosted_button_id=AXWABFZNYU8L6")    
 
 # Guardar la calificación
 @bot.message_handler(func=lambda message: message.text.isdigit() and 1 <= int(message.text) <= 10)
@@ -287,10 +290,11 @@ def mostrar_menu_principal(chat_id):
     button3 = KeyboardButton("🛠️  Soporte")
     button4 = KeyboardButton("📝  Calificar")
     button5 = KeyboardButton("📊 Ver Calificaciones")
+    button6 = KeyboardButton("💸 Donación")
     keyboard1 = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
     keyboard1.row(button1, button2)
     keyboard1.row(button3, button4)
-    keyboard1.row(button5)  
+    keyboard1.row(button5, button6)  
     bot.send_message(chat_id, "Menú principal:", reply_markup=keyboard1)
 
 #Responder al comando /creador
