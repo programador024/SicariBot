@@ -28,8 +28,8 @@ from pydub import AudioSegment
 from PIL import Image  # Para redimensionar y convertir la imagen
 
 #Configuración de la API de Google Custom Search
-API_KEY = "AIzaSyC3LdsqVZm45n2bUKgeuWP2dHHKYOKYV6w" #ID de Google Cloud Console
-SEARCH_ENGINE_ID = "a50b16cd1fe4b4a45" #ID de Custom Search
+API_KEY = "Tu-ID-De-Google-Cloud-Console" #ID de Google Cloud Console
+SEARCH_ENGINE_ID = "Tu-ID-De-Custom-Search" #ID de Custom Search
 SEARCH_URL = "https://www.googleapis.com/customsearch/v1"
 
 # Instanciar el bot en Telegram

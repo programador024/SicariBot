@@ -1,1 +1,2 @@
-TELEGRAM_TOKEN = "7946036126:AAFoZJrb_cTDt7ckGipVhzfPFlkm-xt1yAs"
+# Crea tu token con BotFather desde Telegram
+TELEGRAM_TOKEN = "Tu-Token-Creado"
